@@ -22,5 +22,5 @@
 
 - **Jivas:** ~2.1.0
 - **Actions:**
-  - jivas/switchboard_interview_interact_action: ~0.1.0
+  - jivas/switchboard_interact_action: ~0.1.0
   - jivas/langchain_model_action: ~0.1.0

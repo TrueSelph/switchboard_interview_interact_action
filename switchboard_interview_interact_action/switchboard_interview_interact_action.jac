@@ -12,7 +12,7 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
     has available_agents: list[dict] = [];
     has auto_confirm:bool = True;
     has history_size: int = 1;
-    has switchboard_interview_interact_action: str = "SwitchboardInterviewInteractAction";
+    has switchboard_interact_action: str = "SwitchboardInteractAction";
 
     # Override question_index from base InterviewInteractAction
     has question_index:dict = {
@@ -51,11 +51,11 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
 
 
     def touch(visitor: agent_graph_walker) -> bool {
-        switchboard_interview_interact_action = self.get_agent().get_action(action_label=self.switchboard_interview_interact_action);
-        current_subscription = switchboard_interview_interact_action.get_user_location_subscription(user_session_id=visitor.session_id);
+        switchboard_interact_action = self.get_agent().get_action(action_label=self.switchboard_interact_action);
+        current_subscription = switchboard_interact_action.get_user_location_subscription(user_session_id=visitor.session_id);
 
         if not current_subscription {
-            available_agents = switchboard_interview_interact_action.get_switchboard_agents(switchboard_agent_id=self.get_agent().id);
+            available_agents = switchboard_interact_action.get_switchboard_agents();
             self.question_index["selected_agent"]["constraints"]["agents"] = available_agents;
             return True;
         }
@@ -64,9 +64,9 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
 
 
     def process_response(interview_session: InterviewSession, visitor: agent_graph_walker) {
-        switchboard_interview_interact_action = self.get_agent().get_action(action_label=self.switchboard_interview_interact_action);
-        if not switchboard_interview_interact_action {
-            self.logger.error(f"Subscription Manager Action '{self.switchboard_interview_interact_action}' not found!");
+        switchboard_interact_action = self.get_agent().get_action(action_label=self.switchboard_interact_action);
+        if not switchboard_interact_action {
+            self.logger.error(f"Subscription Manager Action '{self.switchboard_interact_action}' not found!");
             visitor.interaction_node.add_directive(directive=self.failed_directive);
             interview_session.set_state(SessionState.ABORTED);
         }
@@ -99,7 +99,7 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
 
             if (selected_agent_info) {
                 selected_agent_name = selected_agent_info.get("name", "");
-                switchboard_interview_interact_action.update_user_location_subscription(
+                switchboard_interact_action.update_user_location_subscription(
                     user_session_id=visitor.session_id,
                     agent_id=selected_agent_id,
                     agent_name=selected_agent_name
