@@ -55,7 +55,7 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
         current_subscription = switchboard_interact_action.get_user_location_subscription(user_session_id=visitor.session_id);
 
         if not current_subscription {
-            available_agents = switchboard_interact_action.get_switchboard_agents();
+            available_agents = switchboard_interact_action.get_available_agents();
             self.question_index["selected_agent"]["constraints"]["agents"] = available_agents;
             return True;
         }
