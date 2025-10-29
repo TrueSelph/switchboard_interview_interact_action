@@ -64,6 +64,14 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
 
 
     def process_response(interview_session: InterviewSession, visitor: agent_graph_walker) {
+
+        # pass response as a directive
+        if visitor.interaction_node.has_response() {
+            message = visitor.interaction_node.get_message();
+            visitor.interaction_node.add_directive(f"Inform the user about the following message: {message}.");
+            visitor.interaction_node.response = {};
+        }
+
         switchboard_interact_action = self.get_agent().get_action(action_label=self.switchboard_interact_action);
         if not switchboard_interact_action {
             self.logger.error(f"Subscription Manager Action '{self.switchboard_interact_action}' not found!");
