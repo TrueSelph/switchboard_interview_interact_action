@@ -2,7 +2,7 @@ package:
   name: jivas/switchboard_interview_interact_action
   author: V75 Inc.
   archetype: SwitchboardInterviewInteractAction
-  version: 0.1.1
+  version: 0.1.2
   meta:
     title: Switchboard Interview Interact Action
     description: This action allows the user to choose the agent they want to interact with.
