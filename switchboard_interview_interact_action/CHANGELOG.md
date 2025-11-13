@@ -9,3 +9,6 @@
 
 ## 0.1.3
 - Added anchors and fix multiple directive bug
+
+## 0.2.0
+- Updated to use persona_interact_action version 0.2.1
