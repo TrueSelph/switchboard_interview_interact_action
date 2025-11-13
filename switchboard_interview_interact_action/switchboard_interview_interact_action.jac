@@ -49,12 +49,20 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
     b. Do not include any additional statements.
     """;
 
+    has anchors: list = [
+        "MESSAGE is a request to opt out of this location/agent",
+        "MESSAGE is remove me from this agent",
+        "MESSAGE is a request to change location",
+        "MESSAGE is a request to change agent",
+        "MESSAGE is a request to connect me to another agent or location"
+    ];
+
 
     def touch(visitor: agent_graph_walker) -> bool {
         switchboard_interact_action = self.get_agent().get_action(action_label=self.switchboard_interact_action);
         current_subscription = switchboard_interact_action.get_user_location_subscription(user_session_id=visitor.session_id);
 
-        if not current_subscription {
+        if not current_subscription or self.label in visitor.interaction_node.intents {
             available_agents = switchboard_interact_action.get_available_agents();
             self.question_index["selected_agent"]["constraints"]["agents"] = available_agents;
             return True;
@@ -83,15 +91,16 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
 
         if(interview_session.get_state() == SessionState.OPEN) {
             if next_directive := self.get_next_question_directive(interview_session) {
-                visitor.interaction_node.add_directive(directive=next_directive);
+                # check if active field is selected_agent and pass available agents
+                if(interview_session.active_field == "selected_agent") {
+                    visitor.interaction_node.add_directive(directive=self.available_agents_directive.format(agents=available_agents));
+                } else {
+                    visitor.interaction_node.add_directive(directive=next_directive);
+                }
             }else {
                 interview_session.set_state(SessionState.COMPLETED);
             }
 
-            # check if active field is selected_agent and pass available agents
-            if(interview_session.active_field == "selected_agent") {
-                visitor.interaction_node.add_directive(directive=self.available_agents_directive.format(agents=available_agents));
-            }
         }
 
 
