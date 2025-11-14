@@ -65,6 +65,7 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
         if not current_subscription or self.label in visitor.interaction_node.intents {
             available_agents = switchboard_interact_action.get_available_agents();
             self.question_index["selected_agent"]["constraints"]["agents"] = available_agents;
+            switchboard_interact_action.remove_user_location_subscription(user_session_id=visitor.frame_node.session_id);
             return True;
         }
         return False;
