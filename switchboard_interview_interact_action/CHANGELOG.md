@@ -12,3 +12,6 @@
 
 ## 0.2.0
 - Updated to use persona_interact_action version 0.2.1
+
+## 0.2.1
+- Update switchboard to reset location at the beginning of the interview.
