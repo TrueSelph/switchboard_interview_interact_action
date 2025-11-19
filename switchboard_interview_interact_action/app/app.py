@@ -1,4 +1,4 @@
-"""This module renders the streamlit app for the Resolv Onboarding Action Interact Action."""
+"""This module renders the streamlit app for the Switchboard Interview Interact Action."""
 
 from jvclient.lib.widgets import app_controls, app_header, app_update_action
 from streamlit_router import StreamlitRouter
