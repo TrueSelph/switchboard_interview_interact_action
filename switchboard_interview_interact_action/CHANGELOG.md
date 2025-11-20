@@ -15,3 +15,6 @@
 
 ## 0.2.1
 - Update switchboard to reset location at the beginning of the interview.
+
+## 0.2.2
+- Update switchboard to send a confirmation message with instructions on how to change agents before switching to agent

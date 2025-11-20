@@ -4,6 +4,7 @@ import from typing { Optional, List, Dict }
 import from jivas.agent.action.interview_interact_action { InterviewInteractAction, InterviewSession, SessionState }
 import from jivas.agent.action.agent_graph_walker { agent_graph_walker }
 import from jivas.agent.modules.system.common { node_obj }
+import from actions.jivas.persona_interact_action.send_message {send_message}
 
 
 node SwitchboardInterviewInteractAction(InterviewInteractAction) {
@@ -13,6 +14,7 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
     has auto_confirm:bool = True;
     has history_size: int = 1;
     has switchboard_interact_action: str = "SwitchboardInteractAction";
+    has persona_interact_action:str = "PersonaInteractAction";
 
     # Override question_index from base InterviewInteractAction
     has question_index:dict = {
@@ -30,12 +32,8 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
     # Override prompts for a more tailored experience
     has available_agents_directive:str = "Present these agents to the user and ask them to choose a single agent from the list:\n\n{agents}";
 
-    has confirmed_directive: str = """
-    You successfully selected an agent and routed the user. Inform the user by:
-    a. Directly and concisely stating: "Thank you! You've selected: **{selected_agent_name}**.
-    You will now be directed to services for this area. If you wish to change this later, you can say "change agent" or similar.".
-    b. Do not include any additional statements.
-    """;
+    has confirmed_directive: str = """Thank you! You've selected: **{selected_agent_name}**.
+You will now be directed to services for this project. If you wish to change this later, you can say "change agent" or similar.""";
 
     has aborted_directive: str = """
     You aborted routing to an agent. Inform the user by:
@@ -50,11 +48,13 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
     """;
 
     has anchors: list = [
-        "MESSAGE is a request to opt out of this location/agent",
-        "MESSAGE is remove me from this agent",
-        "MESSAGE is a request to change location",
-        "MESSAGE is a request to change agent",
-        "MESSAGE is a request to connect me to another agent or location"
+        "MESSAGE references an agent by name AND includes an explicit action such as connect, switch, talk to, or disconnect",
+        "MESSAGE explicitly asks to be removed from the current agent or stop interacting with them",
+        "MESSAGE explicitly asks to switch to a different agent or project",
+        "MESSAGE includes a clear request to change location or department",
+        "MESSAGE clearly says connect me to <agent> or switch to <agent>",
+        "MESSAGE references an agent by name and asks to interact with them instead of the current one",
+        "MESSAGE is Extract selected_agent as the Id of the agent explicitly mentioned by name from the provided list. Only return the Id if the user directly references an agent by name."
     ];
 
 
@@ -122,8 +122,13 @@ node SwitchboardInterviewInteractAction(InterviewInteractAction) {
                     agent_id=selected_agent_id,
                     agent_name=selected_agent_name
                 );
-
-                visitor.interaction_node.add_directive(self.confirmed_directive.format(selected_agent_name=selected_agent_name));
+                root spawn send_message(
+                    content = self.confirmed_directive.format(selected_agent_name=selected_agent_name),
+                    agent_id = self.agent_id,
+                    session_id = visitor.frame_node.session_id,
+                    frame_node = visitor.frame_node,
+                    interaction_node = visitor.interaction_node
+                );
             } else {
                 self.logger.error(f"State is CONFIRMED but selected_location ID '{selected_agent_id}' is invalid.");
                 visitor.interaction_node.add_directive(directive=self.failed_directive);
